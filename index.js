@@ -1,4 +1,7 @@
+"use strict";
 const chessbox = document.getElementById("chessbox");
+const whiteLostBox = document.getElementById("whitelostpiece");
+const blackLostBox = document.getElementById("blacklostpiece");
 
 let chessBoard = "";
 let a = 0;
@@ -736,10 +739,23 @@ const removeAllBorder = (grid) => {
   }
 };
 
+const changeLostPiece = (lostBox, lostPieceList, player) => {
+  let newINNERHtml = "";
+  lostPieceList.map((data) => {
+    newINNERHtml += `<div class="lostunitstyle">
+    <img src="images/${player}/${data}.png" class="chessUnitImage" alt="icon">
+    </div>`;
+  });
+  lostBox.innerHTML = newINNERHtml;
+};
+
 let previousPieceSelectedInfo = null;
 let previousPiecePossiblePosition = null;
 let possiblePositionForCurrentSelectedPiece = [];
 let currentPlayer = "white";
+
+let pieceLostByWhite = [];
+let pieceLostByBlack = [];
 
 chessUnitElement.map((element) => {
   element.addEventListener("click", (e) => {
@@ -751,11 +767,6 @@ chessUnitElement.map((element) => {
       ) {
         if (previousPiecePossiblePosition) {
           removeAllBorder(chessUnitElement);
-          //   previousPiecePossiblePosition.map((data) => {
-          //     let pos = data[0] * 8 + data[1];
-          //     chessUnitElement[pos].classList.remove("redBorder");
-          //     chessUnitElement[pos].classList.remove("killingPiece");
-          //   });
         }
 
         previousPieceSelectedInfo = parentDivDataSet;
@@ -783,11 +794,6 @@ chessUnitElement.map((element) => {
       ) {
         if (previousPiecePossiblePosition) {
           removeAllBorder(chessUnitElement);
-          //   previousPiecePossiblePosition.map((data) => {
-          //     let pos = data[0] * 8 + data[1];
-          //     chessUnitElement[pos].classList.remove("redBorder");
-          //     chessUnitElement[pos].classList.remove("killingPiece");
-          //   });
         }
 
         previousPieceSelectedInfo = parentDivDataSet;
@@ -828,17 +834,106 @@ chessUnitElement.map((element) => {
                 chessUnitElement[erasingBoxIndex].dataset.piece = "";
                 chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                 currentPlayer = currentPlayer == "white" ? "black" : "white";
+
               }
-              // let pos = data[0] * 8 + data[1];
-              // chessUnitElement[pos].classList.remove("redBorder");
-              // chessUnitElement[pos].classList.remove("killingPiece");
             });
             removeAllBorder(chessUnitElement);
           }
-        }
+          previousPiecePossiblePosition = null;
+          previousPieceSelectedInfo = null;
+        } else {
+          if (
+            currentPlayer == "white" &&
+            parentDivDataSet.playerpiece == "black"
+          ) {
+            if (previousPiecePossiblePosition) {
+              previousPiecePossiblePosition.map((prevPos) => {
+                if (
+                  prevPos[0] == parentDivDataSet.row &&
+                  prevPos[1] == parentDivDataSet.col
+                ) {
+                  const parentElementmain = e.target.parentElement;
+                  const newImage = document.createElement("img");
+                  newImage.src = `images/${currentPlayer}/${previousPieceSelectedInfo.piece}.png`;
+                  newImage.classList.add("chessUnitImage");
+                  newImage.alt = "icon";
 
-        previousPiecePossiblePosition = null;
-        previousPieceSelectedInfo = null;
+                  if (parentElementmain.firstElementChild) {
+                    parentElementmain.replaceChild(
+                      newImage,
+                      parentElementmain.firstElementChild
+                    );
+                  } else {
+                    parentElementmain.appendChild(newImage);
+                  }
+                  pieceLostByBlack.push(parentElementmain.dataset.piece);
+                  changeLostPiece(blackLostBox, pieceLostByBlack, "black");
+                  parentElementmain.dataset.piece =
+                    previousPieceSelectedInfo.piece;
+                  parentElementmain.dataset.playerpiece =
+                    previousPieceSelectedInfo.playerpiece;
+                  let erasingBoxIndex =
+                    +previousPieceSelectedInfo.row * 8 +
+                    +previousPieceSelectedInfo.col;
+
+                  chessUnitElement[erasingBoxIndex].innerHTML = "";
+                  chessUnitElement[erasingBoxIndex].dataset.piece = "";
+                  chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
+                  currentPlayer = currentPlayer == "white" ? "black" : "white";
+
+                  removeAllBorder(chessUnitElement);
+                }
+              });
+            }
+          } else if (
+            currentPlayer == "black" &&
+            parentDivDataSet.playerpiece == "white"
+          ) {
+            if (previousPiecePossiblePosition) {
+              previousPiecePossiblePosition.map((prevPos) => {
+                if (
+                  prevPos[0] == parentDivDataSet.row &&
+                  prevPos[1] == parentDivDataSet.col
+                ) {
+                  const parentElementmain = e.target.parentElement;
+                  const newImage = document.createElement("img");
+                  newImage.src = `images/${currentPlayer}/${previousPieceSelectedInfo.piece}.png`;
+                  newImage.classList.add("chessUnitImage");
+                  newImage.alt = "icon";
+
+                  if (parentElementmain.firstElementChild) {
+                    parentElementmain.replaceChild(
+                      newImage,
+                      parentElementmain.firstElementChild
+                    );
+                  } else {
+                    parentElementmain.appendChild(newImage);
+                  }
+
+                  pieceLostByWhite.push(parentElementmain.dataset.piece);
+                  changeLostPiece(whiteLostBox, pieceLostByWhite, "white");
+
+                  parentElementmain.dataset.piece =
+                    previousPieceSelectedInfo.piece;
+                  parentElementmain.dataset.playerpiece =
+                    previousPieceSelectedInfo.playerpiece;
+                  let erasingBoxIndex =
+                    +previousPieceSelectedInfo.row * 8 +
+                    +previousPieceSelectedInfo.col;
+
+                  chessUnitElement[erasingBoxIndex].innerHTML = "";
+                  chessUnitElement[erasingBoxIndex].dataset.piece = "";
+                  chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
+                  currentPlayer = currentPlayer == "white" ? "black" : "white";
+
+                  removeAllBorder(chessUnitElement);
+                }
+              });
+            }
+          }
+          previousPiecePossiblePosition = null;
+          previousPieceSelectedInfo = null;
+        }
       }
     } else {
       const parentDivDataSet = e.target.dataset;
@@ -846,13 +941,6 @@ chessUnitElement.map((element) => {
         currentPlayer === "white" &&
         parentDivDataSet.playerpiece === "white"
       ) {
-        // if (previousPiecePossiblePosition) {
-        //   previousPiecePossiblePosition.map((data) => {
-        //     let pos = data[0] * 8 + data[1];
-        //     chessUnitElement[pos].classList.remove("redBorder");
-        //     chessUnitElement[pos].classList.remove("killingPiece");
-        //   });
-        // }
         removeAllBorder(chessUnitElement);
 
         previousPieceSelectedInfo = parentDivDataSet;
@@ -878,12 +966,6 @@ chessUnitElement.map((element) => {
         currentPlayer === "black" &&
         parentDivDataSet.playerpiece === "black"
       ) {
-        // if (previousPiecePossiblePosition) {
-        //   previousPiecePossiblePosition.map((data) => {
-        //     let pos = data[0] * 8 + data[1];
-        //     chessUnitElement[pos].classList.remove("redBorder");
-        //   });
-        // }
         removeAllBorder(chessUnitElement);
 
         previousPieceSelectedInfo = parentDivDataSet;
@@ -925,9 +1007,6 @@ chessUnitElement.map((element) => {
                 chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                 currentPlayer = currentPlayer == "white" ? "black" : "white";
               }
-              // let pos = data[0] * 8 + data[1];
-              // chessUnitElement[pos].classList.remove("redBorder");
-              // chessUnitElement[pos].classList.remove("killingPiece");
             });
             removeAllBorder(chessUnitElement);
           }
