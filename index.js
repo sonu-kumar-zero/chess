@@ -2,6 +2,7 @@
 const chessbox = document.getElementById("chessbox");
 const whiteLostBox = document.getElementById("whitelostpiece");
 const blackLostBox = document.getElementById("blacklostpiece");
+const currentPlayerDisplayer = document.getElementById("currentTurnSpecifier");
 
 let chessBoard = "";
 let a = 0;
@@ -736,17 +737,53 @@ const removeAllBorder = (grid) => {
   for (let i = 0; i < 64; i++) {
     grid[i].classList.remove("redBorder");
     grid[i].classList.remove("killingPiece");
+    grid[i].classList.remove("kingDanger");
   }
 };
 
 const changeLostPiece = (lostBox, lostPieceList, player) => {
   let newINNERHtml = "";
   lostPieceList.map((data) => {
+    if (data == "king") {
+      currentPlayerDisplayer.innerHTML = `${player} loss!!!`;
+      // chessUnitElement.map((ele) => {
+      //   ele.removeEventListerner("click");
+      // });
+    }
     newINNERHtml += `<div class="lostunitstyle">
     <img src="images/${player}/${data}.png" class="chessUnitImage" alt="icon">
     </div>`;
   });
   lostBox.innerHTML = newINNERHtml;
+};
+
+const checkIsKingInDanger = (grid, player, WhiteKingPosition,BlackKingPosition,kingIsInDanger) => {
+  let allPossiblePositionCaptured = [];
+  const enemyPlayer = player == "white" ? "black" : "white";
+  grid.map((ele) => {
+    // console.log(ele.dataset);
+    let eleDataset = ele.dataset;
+    let position = [eleDataset.row, eleDataset.col];
+    let playerpiece = eleDataset.playerpiece;
+    let piece = eleDataset.piece;
+
+    if (playerpiece == enemyPlayer) {
+      let pos = possiblePositionForPiece(piece, position, enemyPlayer, grid);
+      allPossiblePositionCaptured = [...allPossiblePositionCaptured, ...pos];
+    }
+  });
+  console.log({enemyPlayer,WhiteKingPosition,BlackKingPosition});
+  console.log(allPossiblePositionCaptured);
+  allPossiblePositionCaptured.map((data)=>{
+    if(player == "white" && WhiteKingPosition[0] == data[0] && WhiteKingPosition[1] == data[1]){
+      // king is in danger;
+      grid[WhiteKingPosition[0]*8+WhiteKingPosition[1]].classList.add("kingDanger");
+      kingIsInDanger = true;
+    }else if(player == "black" && BlackKingPosition[0] == data[0] && BlackKingPosition[1] == data[1]){
+      grid[BlackKingPosition[0]*8+BlackKingPosition[1]].classList.add("kingDanger");
+      kingIsInDanger = true;
+    }
+  })
 };
 
 let previousPieceSelectedInfo = null;
@@ -757,8 +794,14 @@ let currentPlayer = "white";
 let pieceLostByWhite = [];
 let pieceLostByBlack = [];
 
+let BlackKingPosition = [7,3];
+let WhiteKingPosition = [0,4];
+
+let kingIsInDanger = false;
+
 chessUnitElement.map((element) => {
   element.addEventListener("click", (e) => {
+    checkIsKingInDanger(chessUnitElement, currentPlayer,WhiteKingPosition,BlackKingPosition,kingIsInDanger);
     if (e.target.tagName === "IMG") {
       const parentDivDataSet = e.target.parentElement.dataset;
       if (
@@ -823,6 +866,13 @@ chessUnitElement.map((element) => {
                 parentDivDataSet.row == data[0] &&
                 parentDivDataSet.col == data[1]
               ) {
+                if(previousPieceSelectedInfo.piece == "king"){
+                  if(currentPlayer == "white"){
+                    WhiteKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                  }else{
+                    BlackKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                  }
+                }
                 e.target.innerHTML = `<img src="images/${currentPlayer}/${previousPieceSelectedInfo.piece}.png" class="chessUnitImage" alt="icon">`;
                 e.target.dataset.piece = previousPieceSelectedInfo.piece;
                 e.target.dataset.playerpiece =
@@ -834,7 +884,7 @@ chessUnitElement.map((element) => {
                 chessUnitElement[erasingBoxIndex].dataset.piece = "";
                 chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                 currentPlayer = currentPlayer == "white" ? "black" : "white";
-
+                currentPlayerDisplayer.innerHTML = `Chess | ${currentPlayer} Turn`;
               }
             });
             removeAllBorder(chessUnitElement);
@@ -852,6 +902,13 @@ chessUnitElement.map((element) => {
                   prevPos[0] == parentDivDataSet.row &&
                   prevPos[1] == parentDivDataSet.col
                 ) {
+                  if(previousPieceSelectedInfo.piece == "king"){
+                    if(currentPlayer == "white"){
+                      WhiteKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                    }else{
+                      BlackKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                    }
+                  }
                   const parentElementmain = e.target.parentElement;
                   const newImage = document.createElement("img");
                   newImage.src = `images/${currentPlayer}/${previousPieceSelectedInfo.piece}.png`;
@@ -867,7 +924,6 @@ chessUnitElement.map((element) => {
                     parentElementmain.appendChild(newImage);
                   }
                   pieceLostByBlack.push(parentElementmain.dataset.piece);
-                  changeLostPiece(blackLostBox, pieceLostByBlack, "black");
                   parentElementmain.dataset.piece =
                     previousPieceSelectedInfo.piece;
                   parentElementmain.dataset.playerpiece =
@@ -880,8 +936,10 @@ chessUnitElement.map((element) => {
                   chessUnitElement[erasingBoxIndex].dataset.piece = "";
                   chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                   currentPlayer = currentPlayer == "white" ? "black" : "white";
+                  currentPlayerDisplayer.innerHTML = `Chess | ${currentPlayer} Turn`;
 
                   removeAllBorder(chessUnitElement);
+                  changeLostPiece(blackLostBox, pieceLostByBlack, "black");
                 }
               });
             }
@@ -895,6 +953,13 @@ chessUnitElement.map((element) => {
                   prevPos[0] == parentDivDataSet.row &&
                   prevPos[1] == parentDivDataSet.col
                 ) {
+                  if(previousPieceSelectedInfo.piece == "king"){
+                    if(currentPlayer == "white"){
+                      WhiteKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                    }else{
+                      BlackKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                    }
+                  }
                   const parentElementmain = e.target.parentElement;
                   const newImage = document.createElement("img");
                   newImage.src = `images/${currentPlayer}/${previousPieceSelectedInfo.piece}.png`;
@@ -911,7 +976,6 @@ chessUnitElement.map((element) => {
                   }
 
                   pieceLostByWhite.push(parentElementmain.dataset.piece);
-                  changeLostPiece(whiteLostBox, pieceLostByWhite, "white");
 
                   parentElementmain.dataset.piece =
                     previousPieceSelectedInfo.piece;
@@ -925,8 +989,10 @@ chessUnitElement.map((element) => {
                   chessUnitElement[erasingBoxIndex].dataset.piece = "";
                   chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                   currentPlayer = currentPlayer == "white" ? "black" : "white";
+                  currentPlayerDisplayer.innerHTML = `Chess | ${currentPlayer} Turn`;
 
                   removeAllBorder(chessUnitElement);
+                  changeLostPiece(whiteLostBox, pieceLostByWhite, "white");
                 }
               });
             }
@@ -995,6 +1061,13 @@ chessUnitElement.map((element) => {
                 parentDivDataSet.row == data[0] &&
                 parentDivDataSet.col == data[1]
               ) {
+                if(previousPieceSelectedInfo.piece == "king"){
+                  if(currentPlayer == "white"){
+                    WhiteKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                  }else{
+                    BlackKingPosition = [+parentDivDataSet.row,+parentDivDataSet.col];
+                  }
+                }
                 e.target.innerHTML = `<img src="images/${currentPlayer}/${previousPieceSelectedInfo.piece}.png" class="chessUnitImage" alt="icon">`;
                 e.target.dataset.piece = previousPieceSelectedInfo.piece;
                 e.target.dataset.playerpiece =
@@ -1006,6 +1079,7 @@ chessUnitElement.map((element) => {
                 chessUnitElement[erasingBoxIndex].dataset.piece = "";
                 chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                 currentPlayer = currentPlayer == "white" ? "black" : "white";
+                currentPlayerDisplayer.innerHTML = `Chess | ${currentPlayer} Turn`;
               }
             });
             removeAllBorder(chessUnitElement);
