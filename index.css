@@ -1,0 +1,79 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100dvw;
+    height: 100dvh;
+    background-color: #121212;
+    color: #efefef;
+    display: flex;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    padding: 10px 0px;
+}
+
+.title {
+    font-size: 60px;
+}
+
+.chessUnit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: 2px solid transparent;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.chessUnit:hover {
+    outline: 2px solid green;
+}
+
+.boardRow {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+}
+
+#chessbox {
+    display: grid;
+    width: 90%;
+    height: 100%;
+    grid-template-rows: repeat(8, 1fr);
+    gap: 2px;
+}
+
+@media (1080px < width) {
+    #chessbox {
+        width: 60%;
+    }
+}
+
+.blackChessUnit {
+    background-color: #212121;
+    color: #dedede;
+}
+
+.whiteChessUnit {
+    background-color: #dedede;
+    color: #121212;
+}
+
+.chessUnitImage {
+    max-width: 70px;
+    max-height: 70px;
+    mix-blend-mode: normal;
+}
+
+.redBorder {
+    border: 3px solid red;
+}
