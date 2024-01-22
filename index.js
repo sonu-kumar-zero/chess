@@ -121,6 +121,7 @@ chessUnitElement[63].dataset.playerpiece = "black";
 
 const KingPositionDecider = (position, player, grid) => {
   let allowedPosition = [];
+  let otherplayer = player == "white" ? "black" : "white";
   position[0] = +position[0];
   position[1] = +position[1];
 
@@ -137,7 +138,8 @@ const KingPositionDecider = (position, player, grid) => {
         newy >= 0 &&
         newy <= 7 &&
         (newx != position[0] || newy != position[1]) &&
-        grid[newx * 8 + newy].dataset.piece == ""
+        (grid[newx * 8 + newy].dataset.piece == "" ||
+          grid[newx * 8 + newy].dataset.playerpiece == otherplayer)
       ) {
         allowedPosition.push([newx, newy]);
       }
@@ -149,133 +151,285 @@ const KingPositionDecider = (position, player, grid) => {
 
 const QueenPositionDecider = (position, player, grid) => {
   let allowedPosition = [];
+  let otherplayer = player == "white" ? "black" : "white";
   position[0] = +position[0];
   position[1] = +position[1];
 
   console.log("queen position calculation started");
 
   // horizontal tracing
+  let xPOS = position[0];
+  let yPOS = position[1] + 1;
 
-  for (let j = 0; j < 8; j++) {
-    if (j != position[1] && grid[position[0] * 8 + j].dataset.piece == "")
-      allowedPosition.push([position[0], j]);
+  // position to right
+  while (yPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      yPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
   }
+
+  // position to left
+  yPOS = position[1] - 1;
+  while (yPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      yPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  // for (let j = 0; j < 8; j++) {
+  //   if (j != position[1] && grid[position[0] * 8 + j].dataset.piece == "")
+  //     allowedPosition.push([position[0], j]);
+  // }
 
   // vertical tracing
 
-  for (let i = 0; i < 8; i++) {
-    if (i != position[0] && grid[i * 8 + position[1]]?.dataset.piece == "")
-      allowedPosition.push([i, position[1]]);
+  // position to down
+  xPOS = position[0] + 1;
+  yPOS = position[1];
+
+  while (xPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
   }
+
+  xPOS = position[0] - 1;
+  while (xPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  // for (let i = 0; i < 8; i++) {
+  //   if (i != position[0] && grid[i * 8 + position[1]]?.dataset.piece == "")
+  //     allowedPosition.push([i, position[1]]);
+  // }
+
+  //  position to right
+
+  // let starttingPositionX =
+  //   position[1] - position[0] <= 0 ? (position[1] - position[0]) * -1 : 0;
+
+  // let starttingPositionY =
+  //   position[0] >= position[1] ? 0 : position[1] - position[0];
 
   // diagonal tracing
-
   //   left to right
-  let starttingPositionX =
-    position[1] - position[0] <= 0 ? (position[1] - position[0]) * -1 : 0;
 
-  let starttingPositionY =
-    position[0] >= position[1] ? 0 : position[1] - position[0];
+  xPOS = position[0] + 1;
+  yPOS = position[1] + 1;
 
-  while (
-    starttingPositionX >= 0 &&
-    starttingPositionY >= 0 &&
-    starttingPositionY <= 7 &&
-    starttingPositionX <= 7
-  ) {
-    if (
-      grid[starttingPositionX * 8 + starttingPositionY]?.dataset.piece == "" &&
-      (starttingPositionX != position[0] || starttingPositionY != position[1])
-    ) {
-      allowedPosition.push([starttingPositionX, starttingPositionY]);
+  while (xPOS <= 7 && yPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS++;
+      yPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
     }
-    starttingPositionX++;
-    starttingPositionY++;
   }
 
-  // right to leftx
-  starttingPositionX =
-    position[1] + position[0] <= 7 ? position[0] + position[1] : 7;
-  starttingPositionY =
-    position[1] + position[0] <= 7 ? 0 : position[1] + position[0] - 7;
+  // position to left;
+  xPOS = position[0] - 1;
+  yPOS = position[1] - 1;
 
-  while (
-    starttingPositionX >= 0 &&
-    starttingPositionY <= 7 &&
-    starttingPositionY >= 0 &&
-    starttingPositionX <= 7
-  ) {
-    if (
-      grid[starttingPositionX * 8 + starttingPositionY]?.dataset.piece == "" &&
-      (starttingPositionX != position[0] || starttingPositionY != position[1])
-    ) {
-      allowedPosition.push([starttingPositionX, starttingPositionY]);
+  while (xPOS >= 0 && yPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS--;
+      yPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
     }
-    starttingPositionX--;
-    starttingPositionY++;
   }
+
+  // while (
+  //   starttingPositionX >= 0 &&
+  //   starttingPositionY >= 0 &&
+  //   starttingPositionY <= 7 &&
+  //   starttingPositionX <= 7
+  // ) {
+  //   if (
+  //     grid[starttingPositionX * 8 + starttingPositionY]?.dataset.piece == "" &&
+  //     (starttingPositionX != position[0] || starttingPositionY != position[1])
+  //   ) {
+  //     allowedPosition.push([starttingPositionX, starttingPositionY]);
+  //   }
+  //   starttingPositionX++;
+  //   starttingPositionY++;
+  // }
+
+  // right to left down
+
+  // position to right
+  xPOS = position[0] - 1;
+  yPOS = position[1] + 1;
+
+  while (xPOS >= 0 && yPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS--;
+      yPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  // left down to position up
+  xPOS = position[0] + 1;
+  yPOS = position[1] - 1;
+
+  while (xPOS <= 7 && yPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS++;
+      yPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  // starttingPositionX =
+  //   position[1] + position[0] <= 7 ? position[0] + position[1] : 7;
+  // starttingPositionY =
+  //   position[1] + position[0] <= 7 ? 0 : position[1] + position[0] - 7;
+
+  // while (
+  //   starttingPositionX >= 0 &&
+  //   starttingPositionY <= 7 &&
+  //   starttingPositionY >= 0 &&
+  //   starttingPositionX <= 7
+  // ) {
+  //   if (
+  //     grid[starttingPositionX * 8 + starttingPositionY]?.dataset.piece == "" &&
+  //     (starttingPositionX != position[0] || starttingPositionY != position[1])
+  //   ) {
+  //     allowedPosition.push([starttingPositionX, starttingPositionY]);
+  //   }
+  //   starttingPositionX--;
+  //   starttingPositionY++;
+  // }
 
   return allowedPosition;
 };
 
 const BishopPositionDecider = (position, player, grid) => {
-  let possiblePosition = [];
+  let allowedPosition = [];
+  let otherplayer = player == "white" ? "black" : "white";
   position[0] = +position[0];
   position[1] = +position[1];
 
   // diagonal tracing
 
   //   left to right
-  let starttingPositionX =
-    position[1] - position[0] <= 0 ? (position[1] - position[0]) * -1 : 0;
+  let xPOS = position[0] + 1;
+  let yPOS = position[1] + 1;
 
-  let starttingPositionY =
-    position[0] >= position[1] ? 0 : position[1] - position[0];
-
-  while (
-    starttingPositionX >= 0 &&
-    starttingPositionY >= 0 &&
-    starttingPositionY <= 7 &&
-    starttingPositionX <= 7
-  ) {
-    if (
-      grid[starttingPositionX * 8 + starttingPositionY].dataset.piece == "" &&
-      (starttingPositionX != position[0] || starttingPositionY != position[1])
-    ) {
-      possiblePosition.push([starttingPositionX, starttingPositionY]);
+  while (xPOS <= 7 && yPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS++;
+      yPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
     }
-    starttingPositionX++;
-    starttingPositionY++;
+  }
+
+  xPOS = position[0] - 1;
+  yPOS = position[1] - 1;
+
+  while (xPOS >= 0 && yPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS--;
+      yPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
   }
 
   // right to left
 
-  starttingPositionX =
-    position[1] + position[0] <= 7 ? position[0] + position[1] : 7;
-  starttingPositionY =
-    position[1] + position[0] <= 7 ? 0 : position[1] + position[0] - 7;
+  xPOS = position[0] - 1;
+  yPOS = position[1] + 1;
 
-  while (
-    starttingPositionX >= 0 &&
-    starttingPositionY <= 7 &&
-    starttingPositionY >= 0 &&
-    starttingPositionX <= 7
-  ) {
-    if (
-      grid[starttingPositionX * 8 + starttingPositionY].dataset.piece == "" &&
-      (starttingPositionX != position[0] || starttingPositionY != position[1])
-    ) {
-      possiblePosition.push([starttingPositionX, starttingPositionY]);
+  while (xPOS >= 0 && yPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS--;
+      yPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
     }
-    starttingPositionX--;
-    starttingPositionY++;
   }
 
-  return possiblePosition;
+  xPOS = position[0] + 1;
+  yPOS = position[1] - 1;
+
+  while (xPOS <= 7 && yPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS]?.dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS++;
+      yPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  return allowedPosition;
 };
 
 const HorsePositionDecider = (position, player, grid) => {
   let possiblePosition = [];
+  let otherplayer = player == "white" ? "black" : "white";
   position[0] = +position[0];
   position[1] = +position[1];
 
@@ -284,14 +438,18 @@ const HorsePositionDecider = (position, player, grid) => {
   if (position[0] - 2 >= 0) {
     if (
       position[1] - 1 >= 0 &&
-      grid[(position[0] - 2) * 8 + (position[1] - 1)].dataset.piece == ""
+      (grid[(position[0] - 2) * 8 + (position[1] - 1)].dataset.piece == "" ||
+        grid[(position[0] - 2) * 8 + (position[1] - 1)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] - 2, position[1] - 1]);
     }
 
     if (
       position[1] + 1 <= 7 &&
-      grid[(position[0] - 2) * 8 + (position[1] + 1)].dataset.piece == ""
+      (grid[(position[0] - 2) * 8 + (position[1] + 1)].dataset.piece == "" ||
+        grid[(position[0] - 2) * 8 + (position[1] + 1)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] - 2, position[1] + 1]);
     }
@@ -300,14 +458,18 @@ const HorsePositionDecider = (position, player, grid) => {
   if (position[0] + 2 <= 7) {
     if (
       position[1] - 1 >= 0 &&
-      grid[(position[0] + 2) * 8 + (position[1] - 1)].dataset.piece == ""
+      (grid[(position[0] + 2) * 8 + (position[1] - 1)].dataset.piece == "" ||
+        grid[(position[0] + 2) * 8 + (position[1] - 1)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] + 2, position[1] - 1]);
     }
 
     if (
       position[1] + 1 <= 7 &&
-      grid[(position[0] + 2) * 8 + (position[1] + 1)].dataset.piece == ""
+      (grid[(position[0] + 2) * 8 + (position[1] + 1)].dataset.piece == "" ||
+        grid[(position[0] + 2) * 8 + (position[1] + 1)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] + 2, position[1] + 1]);
     }
@@ -319,14 +481,18 @@ const HorsePositionDecider = (position, player, grid) => {
   if (position[1] - 2 >= 0) {
     if (
       position[0] - 1 >= 0 &&
-      grid[(position[0] - 1) * 8 + (position[1] - 2)].dataset.piece == ""
+      (grid[(position[0] - 1) * 8 + (position[1] - 2)].dataset.piece == "" ||
+        grid[(position[0] - 1) * 8 + (position[1] - 2)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] - 1, position[1] - 2]);
     }
 
     if (
       position[0] + 1 <= 7 &&
-      grid[(position[0] + 1) * 8 + (position[1] - 2)].dataset.piece == ""
+      (grid[(position[0] + 1) * 8 + (position[1] - 2)].dataset.piece == "" ||
+        grid[(position[0] + 1) * 8 + (position[1] - 2)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] + 1, position[1] - 2]);
     }
@@ -336,14 +502,18 @@ const HorsePositionDecider = (position, player, grid) => {
   if (position[1] + 2 <= 7) {
     if (
       position[0] - 1 >= 0 &&
-      grid[(position[0] - 1) * 8 + (position[1] + 2)].dataset.piece == ""
+      (grid[(position[0] - 1) * 8 + (position[1] + 2)].dataset.piece == "" ||
+        grid[(position[0] - 1) * 8 + (position[1] + 2)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] - 1, position[1] + 2]);
     }
 
     if (
       position[0] + 1 <= 7 &&
-      grid[(position[0] + 1) * 8 + (position[1] + 2)].dataset.piece == ""
+      (grid[(position[0] + 1) * 8 + (position[1] + 2)].dataset.piece == "" ||
+        grid[(position[0] + 1) * 8 + (position[1] + 2)].dataset.playerpiece ==
+          otherplayer)
     ) {
       possiblePosition.push([position[0] + 1, position[1] + 2]);
     }
@@ -354,21 +524,70 @@ const HorsePositionDecider = (position, player, grid) => {
 
 const ElephentPositionDecider = (position, player, grid) => {
   let allowedPosition = [];
+  let otherplayer = player == "white" ? "black" : "white";
   position[0] = +position[0];
   position[1] = +position[1];
 
   // horizontal tracing
+  let xPOS = position[0];
+  let yPOS = position[1] + 1;
 
-  for (let j = 0; j < 8; j++) {
-    if (j != position[1] && grid[position[0] * 8 + j].dataset.piece == "")
-      allowedPosition.push([position[0], j]);
+  // position to right
+  while (yPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      yPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  // position to left
+  yPOS = position[1] - 1;
+  while (yPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      yPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
   }
 
   // vertical tracing
 
-  for (let i = 0; i < 8; i++) {
-    if (i != position[0] && grid[i * 8 + position[1]].dataset.piece == "")
-      allowedPosition.push([i, position[1]]);
+  // position to down
+  xPOS = position[0] + 1;
+  yPOS = position[1];
+
+  while (xPOS <= 7) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS++;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  xPOS = position[0] - 1;
+  while (xPOS >= 0) {
+    if (grid[xPOS * 8 + yPOS].dataset.piece == "") {
+      allowedPosition.push([xPOS, yPOS]);
+      xPOS--;
+    } else if (grid[xPOS * 8 + yPOS].dataset.playerpiece == otherplayer) {
+      allowedPosition.push([xPOS, yPOS]);
+      break;
+    } else {
+      break;
+    }
   }
 
   return allowedPosition;
@@ -376,6 +595,7 @@ const ElephentPositionDecider = (position, player, grid) => {
 
 const PawnPositionDecider = (position, player, grid) => {
   let possiblePosition = [];
+  let otherplayer = player == "white" ? "black" : "white";
   position[0] = +position[0];
   position[1] = +position[1];
   // console.log("pawn position calculation started");
@@ -383,78 +603,73 @@ const PawnPositionDecider = (position, player, grid) => {
   if (player == "white") {
     // down
     if (position[0] == 1) {
-      possiblePosition.push([position[0] + 1, position[1]]);
-      possiblePosition.push([position[0] + 2, position[1]]);
-      if (
-        position[1] - 1 >= 0 &&
-        grid[(position[0] + 1) * 8 + (position[1] - 1)].dataset.playerpiece ==
-          "black"
-      ) {
-        possiblePosition.push([position[0] + 1, position[1] - 1]);
-      }
-      if (
-        position[1] + 1 <= 7 &&
-        grid[(position[0] + 1) * 8 + (position[1] + 1)].dataset.playerpiece ==
-          "black"
-      ) {
-        possiblePosition.push([position[0] + 1, position[1] + 1]);
+      if (grid[(position[0] + 1) * 8 + position[1]].dataset.piece == "") {
+        possiblePosition.push([position[0] + 1, position[1]]);
+        if (grid[(position[0] + 2) * 8 + position[1]].dataset.piece == "") {
+          possiblePosition.push([position[0] + 2, position[1]]);
+        }
       }
     } else {
-      possiblePosition.push([position[0] + 1, position[1]]);
       if (
-        position[1] - 1 >= 0 &&
-        grid[(position[0] + 1) * 8 + (position[1] - 1)].dataset.playerpiece ==
-          "black"
+        position[0] + 1 <= 7 &&
+        grid[(position[0] + 1) * 8 + position[1]].dataset.piece == ""
       ) {
-        possiblePosition.push([position[0] + 1, position[1] - 1]);
-      }
-      if (
-        position[1] + 1 <= 7 &&
-        grid[(position[0] + 1) * 8 + (position[1] + 1)].dataset.playerpiece ==
-          "black"
-      ) {
-        possiblePosition.push([position[0] + 1, position[1] + 1]);
+        possiblePosition.push([position[0] + 1, position[1]]);
       }
     }
+
+    // left
+    if (
+      position[0] + 1 <= 7 &&
+      position[1] - 1 >= 0 &&
+      grid[(position[0] + 1) * 8 + (position[1] - 1)].dataset.playerpiece ==
+        "black"
+    ) {
+      possiblePosition.push([position[0] + 1, position[1] - 1]);
+    }
+
+    // right
+    if (
+      position[0] + 1 <= 7 &&
+      position[1] + 1 <= 7 &&
+      grid[(position[0] + 1) * 8 + (position[1] + 1)].dataset.playerpiece ==
+        "black"
+    ) {
+      possiblePosition.push([position[0] + 1, position[1] + 1]);
+    }
   } else {
-    console.log({ x: position[0], y: position[1] });
     // up
     if (position[0] == 6) {
-      possiblePosition.push([position[0] - 1, position[1]]);
-      possiblePosition.push([position[0] - 2, position[1]]);
-
-      if (
-        position[1] - 1 >= 0 &&
-        grid[(position[0] - 1) * 8 + (position[1] - 1)].dataset.playerpiece ==
-          "white"
-      ) {
-        possiblePosition.push([position[0] - 1, position[1] - 1]);
-      }
-
-      if (
-        position[1] + 1 <= 7 &&
-        grid[(position[0] - 1) * 8 + (position[1] + 1)].dataset.playerpiece ==
-          "white"
-      ) {
-        possiblePosition.push([position[0] - 1, position[1] + 1]);
+      if (grid[(position[0] - 1) * 8 + position[1]].dataset.piece == "") {
+        possiblePosition.push([position[0] - 1, position[1]]);
+        if (grid[(position[0] - 2) * 8 + position[1]].dataset.piece == "") {
+          possiblePosition.push([position[0] - 2, position[1]]);
+        }
       }
     } else {
-      possiblePosition.push([position[0] - 1, position[1]]);
-      if (
-        position[1] - 1 >= 0 &&
-        grid[(position[0] - 1) * 8 + (position[1] - 1)].dataset.playerpiece ==
-          "white"
-      ) {
-        possiblePosition.push([position[0] - 1, position[1] - 1]);
+      if (grid[(position[0] - 1) * 8 + position[1]].dataset.piece == "") {
+        possiblePosition.push([position[0] - 1, position[1]]);
       }
+    }
 
-      if (
-        position[1] + 1 <= 7 &&
-        grid[(position[0] - 1) * 8 + (position[1] + 1)].dataset.playerpiece ==
-          "white"
-      ) {
-        possiblePosition.push([position[0] - 1, position[1] + 1]);
-      }
+    // left
+    if (
+      position[0] - 1 >= 0 &&
+      position[1] - 1 >= 0 &&
+      grid[(position[0] - 1) * 8 + (position[1] - 1)].dataset.playerpiece ==
+        "white"
+    ) {
+      possiblePosition.push([position[0] - 1, position[1] - 1]);
+    }
+
+    // right
+    if (
+      position[0] - 1 >= 0 &&
+      position[1] + 1 <= 7 &&
+      grid[(position[0] - 1) * 8 + (position[1] + 1)].dataset.playerpiece ==
+        "white"
+    ) {
+      possiblePosition.push([position[0] - 1, position[1] + 1]);
     }
   }
 
@@ -514,6 +729,13 @@ const possiblePositionForPiece = (piece, position, player, grid) => {
   return possiblePosition;
 };
 
+const removeAllBorder = (grid) => {
+  for (let i = 0; i < 64; i++) {
+    grid[i].classList.remove("redBorder");
+    grid[i].classList.remove("killingPiece");
+  }
+};
+
 let previousPieceSelectedInfo = null;
 let previousPiecePossiblePosition = null;
 let possiblePositionForCurrentSelectedPiece = [];
@@ -528,10 +750,12 @@ chessUnitElement.map((element) => {
         parentDivDataSet.playerpiece === "white"
       ) {
         if (previousPiecePossiblePosition) {
-          previousPiecePossiblePosition.map((data) => {
-            let pos = data[0] * 8 + data[1];
-            chessUnitElement[pos].classList.remove("redBorder");
-          });
+          removeAllBorder(chessUnitElement);
+          //   previousPiecePossiblePosition.map((data) => {
+          //     let pos = data[0] * 8 + data[1];
+          //     chessUnitElement[pos].classList.remove("redBorder");
+          //     chessUnitElement[pos].classList.remove("killingPiece");
+          //   });
         }
 
         previousPieceSelectedInfo = parentDivDataSet;
@@ -547,17 +771,23 @@ chessUnitElement.map((element) => {
 
         possiblePositionForCurrentSelectedPiece.map((data) => {
           let pos = data[0] * 8 + data[1];
-          chessUnitElement[pos].classList.add("redBorder");
+          if (chessUnitElement[pos].dataset.playerpiece == "black") {
+            chessUnitElement[pos].classList.add("killingPiece");
+          } else {
+            chessUnitElement[pos].classList.add("redBorder");
+          }
         });
       } else if (
         currentPlayer === "black" &&
         parentDivDataSet.playerpiece === "black"
       ) {
         if (previousPiecePossiblePosition) {
-          previousPiecePossiblePosition.map((data) => {
-            let pos = data[0] * 8 + data[1];
-            chessUnitElement[pos].classList.remove("redBorder");
-          });
+          removeAllBorder(chessUnitElement);
+          //   previousPiecePossiblePosition.map((data) => {
+          //     let pos = data[0] * 8 + data[1];
+          //     chessUnitElement[pos].classList.remove("redBorder");
+          //     chessUnitElement[pos].classList.remove("killingPiece");
+          //   });
         }
 
         previousPieceSelectedInfo = parentDivDataSet;
@@ -573,7 +803,11 @@ chessUnitElement.map((element) => {
 
         possiblePositionForCurrentSelectedPiece.map((data) => {
           let pos = data[0] * 8 + data[1];
-          chessUnitElement[pos].classList.add("redBorder");
+          if (chessUnitElement[pos].dataset.playerpiece == "white") {
+            chessUnitElement[pos].classList.add("killingPiece");
+          } else {
+            chessUnitElement[pos].classList.add("redBorder");
+          }
         });
       } else {
         if (parentDivDataSet.piece == "") {
@@ -595,9 +829,11 @@ chessUnitElement.map((element) => {
                 chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                 currentPlayer = currentPlayer == "white" ? "black" : "white";
               }
-              let pos = data[0] * 8 + data[1];
-              chessUnitElement[pos].classList.remove("redBorder");
+              // let pos = data[0] * 8 + data[1];
+              // chessUnitElement[pos].classList.remove("redBorder");
+              // chessUnitElement[pos].classList.remove("killingPiece");
             });
+            removeAllBorder(chessUnitElement);
           }
         }
 
@@ -610,12 +846,14 @@ chessUnitElement.map((element) => {
         currentPlayer === "white" &&
         parentDivDataSet.playerpiece === "white"
       ) {
-        if (previousPiecePossiblePosition) {
-          previousPiecePossiblePosition.map((data) => {
-            let pos = data[0] * 8 + data[1];
-            chessUnitElement[pos].classList.remove("redBorder");
-          });
-        }
+        // if (previousPiecePossiblePosition) {
+        //   previousPiecePossiblePosition.map((data) => {
+        //     let pos = data[0] * 8 + data[1];
+        //     chessUnitElement[pos].classList.remove("redBorder");
+        //     chessUnitElement[pos].classList.remove("killingPiece");
+        //   });
+        // }
+        removeAllBorder(chessUnitElement);
 
         previousPieceSelectedInfo = parentDivDataSet;
 
@@ -630,18 +868,23 @@ chessUnitElement.map((element) => {
 
         possiblePositionForCurrentSelectedPiece.map((data) => {
           let pos = data[0] * 8 + data[1];
-          chessUnitElement[pos].classList.add("redBorder");
+          if (chessUnitElement[pos].dataset.playerpiece == "black") {
+            chessUnitElement[pos].classList.add("killingPiece");
+          } else {
+            chessUnitElement[pos].classList.add("redBorder");
+          }
         });
       } else if (
         currentPlayer === "black" &&
         parentDivDataSet.playerpiece === "black"
       ) {
-        if (previousPiecePossiblePosition) {
-          previousPiecePossiblePosition.map((data) => {
-            let pos = data[0] * 8 + data[1];
-            chessUnitElement[pos].classList.remove("redBorder");
-          });
-        }
+        // if (previousPiecePossiblePosition) {
+        //   previousPiecePossiblePosition.map((data) => {
+        //     let pos = data[0] * 8 + data[1];
+        //     chessUnitElement[pos].classList.remove("redBorder");
+        //   });
+        // }
+        removeAllBorder(chessUnitElement);
 
         previousPieceSelectedInfo = parentDivDataSet;
 
@@ -656,7 +899,11 @@ chessUnitElement.map((element) => {
 
         possiblePositionForCurrentSelectedPiece.map((data) => {
           let pos = data[0] * 8 + data[1];
-          chessUnitElement[pos].classList.add("redBorder");
+          if (chessUnitElement[pos].dataset.playerpiece == "white") {
+            chessUnitElement[pos].classList.add("killingPiece");
+          } else {
+            chessUnitElement[pos].classList.add("redBorder");
+          }
         });
       } else {
         if (parentDivDataSet.piece == "") {
@@ -678,9 +925,11 @@ chessUnitElement.map((element) => {
                 chessUnitElement[erasingBoxIndex].dataset.playerpiece = "";
                 currentPlayer = currentPlayer == "white" ? "black" : "white";
               }
-              let pos = data[0] * 8 + data[1];
-              chessUnitElement[pos].classList.remove("redBorder");
+              // let pos = data[0] * 8 + data[1];
+              // chessUnitElement[pos].classList.remove("redBorder");
+              // chessUnitElement[pos].classList.remove("killingPiece");
             });
+            removeAllBorder(chessUnitElement);
           }
         }
 

@@ -31,17 +31,17 @@ body {
     align-items: center;
     outline: 2px solid transparent;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 2px;
 }
 
 .chessUnit:hover {
-    outline: 2px solid green;
+    outline: 3px solid green;
 }
 
 .boardRow {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    gap: 2px;
+    gap: 4px;
 }
 
 #chessbox {
@@ -49,22 +49,22 @@ body {
     width: 90%;
     height: 100%;
     grid-template-rows: repeat(8, 1fr);
-    gap: 2px;
+    gap: 4px;
 }
 
 @media (1080px < width) {
     #chessbox {
-        width: 60%;
+        width: 50%;
     }
 }
 
 .blackChessUnit {
-    background-color: #212121;
+    background-color: #21212133;
     color: #dedede;
 }
 
 .whiteChessUnit {
-    background-color: #dedede;
+    background-color: #dedede88;
     color: #121212;
 }
 
@@ -75,5 +75,9 @@ body {
 }
 
 .redBorder {
+    border: 3px solid orange;
+}
+
+.killingPiece {
     border: 3px solid red;
 }
